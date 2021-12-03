@@ -4,11 +4,12 @@
 
 In your installation dir:
 
+```bash
 git clone https://github.com/rafiberlin/WS21_IM_map_world_scene_graphs
 
 export INSTALL_DIR=$PWD
-
-cd $INSTALL_DIR
+cd WS21_IM_map_world_scene_graphs
+```
 
 Create a virtual environment named `venv_sgg` with:
 
