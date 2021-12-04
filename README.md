@@ -44,3 +44,18 @@ pip install git+https://github.com/rafiberlin/SceneGraphParser
 python -m spacy download en
 
 ```
+
+Under Scene/maskrcnn_benchmark/config/paths_catalog.py, adjust all paths according to your machine.
+
+Especially adjust DATA_DIR with the root directory for your datasets.
+
+The entries in the variable DATASETS under the key `VG_stanford_filtered_with_attribute`
+needs to be amended accordingly.
+
+The files image_data.json and VG-SGG-dicts-with-attri.json can be found in this repo under:
+
+`Scene/datasets/vg/`
+
+The file VG-SGG-with-attri.h5 must be downloaded from 
+
+`https://onedrive.live.com/?authkey=%21AA33n7BRpB1xa3I&id=root&cid=28F8BC1F9BEF08FA&qt=sharedby`
