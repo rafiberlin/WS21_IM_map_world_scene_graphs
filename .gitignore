@@ -8,7 +8,8 @@ __pycache__/
 
 # Exclude Tensorflow checkpoints
 
-*checkpoint*
+#Include checkpoint otherwise ignores a some code in mask_rcnn
+#*checkpoint*
 *ckpt*
 
 # Exclude the pretained models
