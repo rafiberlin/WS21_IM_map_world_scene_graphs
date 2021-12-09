@@ -44,9 +44,11 @@ image_file = os.path.join(data_dir, attrs["image_file"])
 roidb_file = os.path.join(data_dir, attrs["roidb_file"])
 # where to load detected scene graph
 #detected_path = '/home/kaihua/checkpoints/causal_sgdet_ctx_only/inference/VG_stanford_filtered_wth_attribute_test/'
-detected_path = '/media/rafi/Samsung_T5/_DATASETS/vg/'
+#detected_path = '/media/rafi/Samsung_T5/_DATASETS/vg/'
+detected_path = '/home/users/alatif/data/ImageCorpora/vg/checkpoint/causal-motifs-sgdet/inference/VG_stanford_filtered_with_attribute_test/'
 # where to save the generated annotation
-output_path = '/media/rafi/Samsung_T5/_DATASETS/vg/sg_of_causal_sgdet_ctx_only.json'
+#output_path = '/media/rafi/Samsung_T5/_DATASETS/vg/sg_of_causal_sgdet_ctx_only.json'
+output_path = detected_path + "sg_of_causal_sgdet_ctx_only.json"
 
 # cap_graph = json.load(open('/data1/vg_capgraphs_anno.json'))
 # vg_data = h5py.File('/home/kaihua/projects/maskrcnn-benchmark/datasets/vg/VG-SGG-with-attri.h5', 'r')
