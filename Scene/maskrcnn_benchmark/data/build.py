@@ -160,8 +160,14 @@ def make_batch_data_sampler(
     return batch_sampler
 
 
-def make_data_loader(cfg, mode='train', is_distributed=False, start_iter=0):
+def make_data_loader(cfg, mode='train', is_distributed=False, start_iter=0, dataset_to_test=None):
     assert mode in {'train', 'val', 'test'}
+    assert dataset_to_test in {'train', 'val', 'test', None}
+    # this variable enable to run a test on any data split, even on the training dataset
+    # without actually flagging it for training....
+    if dataset_to_test is None:
+        dataset_to_test = mode
+
     num_gpus = get_world_size()
     is_train = mode == 'train'
     if is_train:
@@ -206,9 +212,9 @@ def make_data_loader(cfg, mode='train', is_distributed=False, start_iter=0):
         "maskrcnn_benchmark.config.paths_catalog", cfg.PATHS_CATALOG, True
     )
     DatasetCatalog = paths_catalog.DatasetCatalog
-    if mode == 'train':
+    if dataset_to_test == 'train':
         dataset_list = cfg.DATASETS.TRAIN
-    elif mode == 'val':
+    elif dataset_to_test == 'val':
         dataset_list = cfg.DATASETS.VAL
     else:
         dataset_list = cfg.DATASETS.TEST
