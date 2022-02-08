@@ -120,6 +120,9 @@ class VGDataset(torch.utils.data.Dataset):
                 self.custom_files.append(os.path.join(path, file_name))
                 img = Image.open(os.path.join(path, file_name)).convert("RGB")
                 self.img_info.append({'width':int(img.width), 'height':int(img.height)})
+            return
+        else:
+            print(f"Warning VG Dataset: {path} is not a directory.")
         # Expecting a list of paths in a json file
         if os.path.isfile(path):
             file_list = json.load(open(path))
@@ -127,6 +130,9 @@ class VGDataset(torch.utils.data.Dataset):
                 self.custom_files.append(file)
                 img = Image.open(file).convert("RGB")
                 self.img_info.append({'width': int(img.width), 'height': int(img.height)})
+        else:
+            print(f"Warning VG Dataset: {path} does not exist.")
+
     def get_img_info(self, index):
         # WARNING: original image_file.json has several pictures with false image size
         # use correct function to check the validity before training
