@@ -219,6 +219,34 @@ def save_output(output_folder, groundtruths, predictions, dataset):
         with open(os.path.join(output_folder, "visual_info.json"), "w") as f:
             json.dump(visual_info, f)
 
+def save_custom_output(output_folder, predictions, dataset):
+    if output_folder:
+
+        outfile =  os.path.join(output_folder, "eval_results.pytorch")
+        torch.save({'predictions':predictions}, outfile)
+        print("SAVED!", outfile)
+
+        #with open(os.path.join(output_folder, "result.txt"), "w") as f:
+        #    f.write(result_str)
+        # visualization information
+        visual_info = []
+        for image_id, prediction in enumerate(predictions):
+            img_file = os.path.abspath(dataset.custom_files[image_id])
+
+            prediction = [
+                [b[0], b[1], b[2], b[3], dataset.categories[l]] # xyxy, str
+                for b, l in zip(prediction.bbox.tolist(), prediction.get_field('pred_labels').tolist())
+                ]
+            visual_info.append({
+                'img_file': img_file,
+                'prediction': prediction
+                })
+
+        visual_info_file = os.path.join(output_folder, "visual_info.json")
+
+        with open(visual_info_file, "w") as f:
+            json.dump(visual_info, f)
+        print("SAVED!", visual_info_file)
 
 
 def evaluate_relation_of_one_image(groundtruth, prediction, global_container, evaluator):

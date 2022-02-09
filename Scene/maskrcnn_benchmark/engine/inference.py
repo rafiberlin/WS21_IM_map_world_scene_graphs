@@ -14,6 +14,7 @@ from ..utils.comm import all_gather
 from ..utils.comm import synchronize
 from ..utils.timer import Timer, get_time_str
 from .bbox_aug import im_detect_bbox_aug
+from maskrcnn_benchmark.data.datasets.evaluation.vg.vg_eval import save_custom_output
 
 
 def compute_on_dataset(model, data_loader, device, synchronize_gather=True, timer=None):
@@ -47,6 +48,7 @@ def compute_on_dataset(model, data_loader, device, synchronize_gather=True, time
             results_dict.update(
                 {img_id: result for img_id, result in zip(image_ids, output)}
             )
+
     torch.cuda.empty_cache()
     return results_dict
 
@@ -64,7 +66,7 @@ def _accumulate_predictions_from_multiple_gpus(predictions_per_gpu, synchronize_
         predictions = {}
         for p in all_predictions:
             predictions.update(p)
-    
+
     # convert a dict where the key is the index in a list
     image_ids = list(sorted(predictions.keys()))
     if len(image_ids) != image_ids[-1] + 1:
@@ -93,7 +95,8 @@ def inference(
         output_folder=None,
         logger=None,
 ):
-    load_prediction_from_cache = cfg.TEST.ALLOW_LOAD_FROM_CACHE and output_folder is not None and os.path.exists(os.path.join(output_folder, "eval_results.pytorch"))
+    load_prediction_from_cache = cfg.TEST.ALLOW_LOAD_FROM_CACHE and output_folder is not None and os.path.exists(
+        os.path.join(output_folder, "eval_results.pytorch"))
     # convert to a torch.device for efficiency
     device = torch.device(device)
     num_devices = get_world_size()
@@ -105,9 +108,11 @@ def inference(
     inference_timer = Timer()
     total_timer.tic()
     if load_prediction_from_cache:
-        predictions = torch.load(os.path.join(output_folder, "eval_results.pytorch"), map_location=torch.device("cpu"))['predictions']
+        predictions = torch.load(os.path.join(output_folder, "eval_results.pytorch"), map_location=torch.device("cpu"))[
+            'predictions']
     else:
-        predictions = compute_on_dataset(model, data_loader, device, synchronize_gather=cfg.TEST.RELATION.SYNC_GATHER, timer=inference_timer)
+        predictions = compute_on_dataset(model, data_loader, device, synchronize_gather=cfg.TEST.RELATION.SYNC_GATHER,
+                                         timer=inference_timer)
     # wait for all processes to complete before measuring the time
     synchronize()
     total_time = total_timer.toc()
@@ -127,12 +132,13 @@ def inference(
     )
 
     if not load_prediction_from_cache:
-        predictions = _accumulate_predictions_from_multiple_gpus(predictions, synchronize_gather=cfg.TEST.RELATION.SYNC_GATHER)
+        predictions = _accumulate_predictions_from_multiple_gpus(predictions,
+                                                                 synchronize_gather=cfg.TEST.RELATION.SYNC_GATHER)
 
     if not is_main_process():
         return -1.0
 
-    #if output_folder is not None and not load_prediction_from_cache:
+    # if output_folder is not None and not load_prediction_from_cache:
     #    torch.save(predictions, os.path.join(output_folder, "predictions.pth"))
 
     extra_args = dict(
@@ -143,10 +149,11 @@ def inference(
     )
 
     if cfg.TEST.CUSTUM_EVAL:
-        detected_sgg = custom_sgg_post_precessing(predictions)
-        with open(os.path.join(cfg.DETECTED_SGG_DIR, 'custom_prediction.json'), 'w') as outfile:  
-            json.dump(detected_sgg, outfile)
-        print('=====> ' + str(os.path.join(cfg.DETECTED_SGG_DIR, 'custom_prediction.json')) + ' SAVED !')
+        save_custom_output(cfg.DETECTED_SGG_DIR, predictions, dataset)
+        # detected_sgg = custom_sgg_post_precessing(predictions)
+        # with open(os.path.join(cfg.DETECTED_SGG_DIR, 'custom_prediction.json'), 'w') as outfile:
+        #     json.dump(detected_sgg, outfile)
+        # print('=====> ' + str(os.path.join(cfg.DETECTED_SGG_DIR, 'custom_prediction.json')) + ' SAVED !')
         return -1.0
 
     return evaluate(cfg=cfg,
@@ -155,7 +162,6 @@ def inference(
                     output_folder=output_folder,
                     logger=logger,
                     **extra_args)
-
 
 
 def custom_sgg_post_precessing(predictions):
@@ -178,7 +184,7 @@ def custom_sgg_post_precessing(predictions):
         current_dict['bbox_labels'] = bbox_labels
         current_dict['bbox_scores'] = bbox_scores
         # sorted relationships
-        rel_sortedid, _ = get_sorted_bbox_mapping(boxlist.get_field('pred_rel_scores')[:,1:].max(1)[0].tolist())
+        rel_sortedid, _ = get_sorted_bbox_mapping(boxlist.get_field('pred_rel_scores')[:, 1:].max(1)[0].tolist())
         # sorted rel
         rel_pairs = []
         rel_labels = []
@@ -196,9 +202,10 @@ def custom_sgg_post_precessing(predictions):
         current_dict['rel_all_scores'] = rel_all_scores
         output_dict[idx] = current_dict
     return output_dict
-    
+
+
 def get_sorted_bbox_mapping(score_list):
     sorted_scoreidx = sorted([(s, i) for i, s in enumerate(score_list)], reverse=True)
     sorted2id = [item[1] for item in sorted_scoreidx]
-    id2sorted = [item[1] for item in sorted([(j,i) for i, j in enumerate(sorted2id)])]
+    id2sorted = [item[1] for item in sorted([(j, i) for i, j in enumerate(sorted2id)])]
     return sorted2id, id2sorted
