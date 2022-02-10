@@ -14,7 +14,7 @@ def preprocess_scene_graphs_output( detected_path, output_file_name):
     cap_graph_file = os.path.join(data_dir, attrs["capgraphs_file"])
     vg_dict_file = os.path.join(data_dir, attrs["dict_file"])
     image_file = os.path.join(data_dir, attrs["image_file"])
-    output_path = detected_path + output_file_name
+    output_path = os.path.join(detected_path, output_file_name)
 
 
     cap_graph = json.load(open(cap_graph_file))
