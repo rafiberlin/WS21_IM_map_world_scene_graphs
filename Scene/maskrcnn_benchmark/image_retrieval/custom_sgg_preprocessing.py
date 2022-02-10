@@ -82,11 +82,10 @@ def preprocess_scene_graphs_output( detected_path, output_file_name):
 
     def generate_txt_img_sg(img_sg):
         txt_img_sg = {}
-        num_img = len(cap_graph['vg_valids'])
-        for i in range(num_img):
-                img = img_sg[coco_id]
+
+        for img in img_sg.keys():
                 encode_img = {'entities':[], 'relations':[]}
-                for item in img:
+                for item in img_sg[img]:
                     entities = [sgg_obj2id[e] for e in item['entities']]
                     relations = [[entities[r[0]], entities[r[1]], sgg_rel2id[r[2]]] for r in item['relations']]
                     encode_img['entities'] = encode_img['entities'] + entities
@@ -121,7 +120,7 @@ def preprocess_scene_graphs_output( detected_path, output_file_name):
 
 
                 #txt_img_sg[coco_id] = {'img':encode_img, 'txt':encode_txt}
-                txt_img_sg[coco_id] = {
+                txt_img_sg[img] = {
                     'img':encode_img,
                     'image_graph':image_graph
                 }
@@ -169,13 +168,12 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--output_file_name",
-        default=f"sg_of_causal_sgdet_ctx_only.json",
+        default=f"sg_of_causal_sgdet_custom_img_graph_only.json",
         help="creates this file under the path specified with  --test-results-path",
     )
 
     args = parser.parse_args()
 
-    #path = "/media/rafi/Samsung_T5/_DATASETS/vg/sgg/ade20k_debug/"
-    #path = "/media/rafi/Samsung_T5/_DATASETS/vg/sgg/debug_eval/"
-    path = "/home/rafi/checkpoints/sgdet/"
-    preprocess_scene_graphs_output(path, path)
+    # path = "/home/rafi/checkpoints/sgdet/"
+    # outfile_name = "sg_of_causal_sgdet_custom_img_graph_only.json"
+    preprocess_scene_graphs_output(args.test_results_path, args.output_file_name)
