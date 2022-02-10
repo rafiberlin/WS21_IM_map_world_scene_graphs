@@ -162,7 +162,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Preprocessing of Scene Graphs for Image Retrieval")
     parser.add_argument(
         "--test_results_path",
-        default=f"/home/users/alatif/data/Image/Corpora/vg/sgg_ade20k_output",
+        default=f"/home/users/alatif/data/ImageCorpora/vg/sgg_ade20k_output",
         help="path to config file",
     )
 
