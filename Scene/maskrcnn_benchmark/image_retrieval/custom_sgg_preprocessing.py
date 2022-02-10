@@ -8,7 +8,7 @@ import torch
 from tqdm import tqdm
 from maskrcnn_benchmark.config.paths_catalog import DatasetCatalog
 
-def preprocess_scene_graphs_output( detected_path, output_file_name):
+def preprocess_scene_graphs_output( detected_path, output_file_name, path_prefix_to_remove):
     data_dir = DatasetCatalog.DATA_DIR
     attrs = DatasetCatalog.DATASETS["VG_stanford_filtered_with_attribute"]
     cap_graph_file = os.path.join(data_dir, attrs["capgraphs_file"])
@@ -37,8 +37,9 @@ def preprocess_scene_graphs_output( detected_path, output_file_name):
 
     # generate scene graph from test results
     def generate_detect_sg(predictions, det_info, obj_thres = 0.1):
-        num_img = len(predictions)
 
+        num_img = len(predictions)
+        prefix_index_end = len(path_prefix_to_remove) - 1
 
         output = {}
         for i in tqdm(range(num_img)):
@@ -76,7 +77,13 @@ def preprocess_scene_graphs_output( detected_path, output_file_name):
             pred_objs = [vg_dict['idx_to_label'][str(i)] for i in filter_obj.tolist()]
             pred_rels = [[i[0], i[1], cap_graph['idx_to_meta_predicate'][str(j)]] for i, j in zip(filter_pair.tolist(), filter_rel.tolist())]
             file_name = det_info[i]["img_file"]
-            output[file_name] = [{'entities' : pred_objs, 'relations' : pred_rels}, ]
+            start_idx = file_name.find(path_prefix_to_remove)
+            assert start_idx >= 0
+
+            # from /data/ImageCorpora/ADE20K_2016_07_26/images/training/b/bathroom/ADE_train_00000006.jpg"
+            # to b/bathroom/ADE_train_00000006.jpg"
+            truncated_name = file_name[start_idx+prefix_index_end:]
+            output[truncated_name] = [{'entities' : pred_objs, 'relations' : pred_rels}, ]
         return output
 
 
@@ -172,8 +179,14 @@ if __name__ == "__main__":
         help="creates this file under the path specified with  --test-results-path",
     )
 
+    parser.add_argument(
+        "--path_prefix_to_remove",
+        default=f'/data/ImageCorpora/ADE20K_2016_07_26/images/training/',
+        help="The physical root dir for the training images of ADE20K (needs to be removed.)",
+    )
+
     args = parser.parse_args()
 
     # path = "/home/rafi/checkpoints/sgdet/"
     # outfile_name = "sg_of_causal_sgdet_custom_img_graph_only.json"
-    preprocess_scene_graphs_output(args.test_results_path, args.output_file_name)
+    preprocess_scene_graphs_output(args.test_results_path, args.output_file_name, args.path_prefix_to_remove)
