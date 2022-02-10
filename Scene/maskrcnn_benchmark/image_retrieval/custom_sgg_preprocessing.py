@@ -5,7 +5,7 @@ import json
 import numpy as np
 
 import torch
-
+from tqdm import tqdm
 from maskrcnn_benchmark.config.paths_catalog import DatasetCatalog
 
 def preprocess_scene_graphs_output( detected_path, output_file_name):
@@ -41,7 +41,7 @@ def preprocess_scene_graphs_output( detected_path, output_file_name):
 
 
         output = {}
-        for i in range(num_img):
+        for i in tqdm(range(num_img)):
             # key = det_info['idx_to_files'][i]
             # i = str(i)
             # all_obj_labels = predictions[i]['pred_labels']
@@ -83,7 +83,7 @@ def preprocess_scene_graphs_output( detected_path, output_file_name):
     def generate_txt_img_sg(img_sg):
         txt_img_sg = {}
 
-        for img in img_sg.keys():
+        for img in tqdm(img_sg.keys()):
                 encode_img = {'entities':[], 'relations':[]}
                 for item in img_sg[img]:
                     entities = [sgg_obj2id[e] for e in item['entities']]
