@@ -39,7 +39,7 @@ def preprocess_scene_graphs_output( detected_path, output_file_name, path_prefix
     def generate_detect_sg(predictions, det_info, obj_thres = 0.1):
 
         num_img = len(predictions)
-        prefix_index_end = len(path_prefix_to_remove) - 1
+        prefix_index_end = len(path_prefix_to_remove)
 
         output = {}
         for i in tqdm(range(num_img)):
