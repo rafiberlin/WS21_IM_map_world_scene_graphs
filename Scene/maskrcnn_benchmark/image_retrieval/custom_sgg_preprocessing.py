@@ -141,8 +141,8 @@ def preprocess_scene_graphs_output( detected_path, output_file_name):
     # detected_result = json.load(open(detected_path + prediction_file_name))
     # detected_info = json.load(open(detected_path + info_file_name))
 
-    detected_result = torch.load(detected_path + "eval_results.pytorch")
-    detected_info = json.load(open(detected_path + "visual_info.json"))
+    detected_result = torch.load(os.path.join(detected_path , "eval_results.pytorch"))
+    detected_info = json.load(open(os.path.join(detected_path ,  "visual_info.json")))
 
     output = generate_detect_sg(detected_result["predictions"], detected_info, obj_thres = 0.1)
 
@@ -162,7 +162,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Preprocessing of Scene Graphs for Image Retrieval")
     parser.add_argument(
         "--test_results_path",
-        default=f"/home/users/alatif/data/ImageCorpora/vg/checkpoint/causal-motifs-sgdet/inference/VG_stanford_filtered_with_attribute/",
+        default=f"/home/users/alatif/data/Image/Corpora/vg/sgg_ade20k_output",
         help="path to config file",
     )
 
